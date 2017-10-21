@@ -1,6 +1,7 @@
 package app.smartinspector.com.smartinspector;
 
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,6 +11,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -292,6 +294,16 @@ public class TakeAPhotoActivity extends AppCompatActivity {
                         }
                     } else {
                         updateStatus("No emotion detected");
+                        AlertDialog.Builder builder = new AlertDialog.Builder(TakeAPhotoActivity.this);
+                        builder.setMessage("Please take the photo again.")
+                                .setTitle("Failed to detect your emotion")
+                                .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // The 'which' argument contains the index position
+                                // of the selected item
+                            }});
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
                         uiActive(true);
                     }
                 } else {
