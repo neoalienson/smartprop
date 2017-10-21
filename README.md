@@ -9,3 +9,6 @@ http://www.hackathon.io/smartone-hackathon-smart-properties
 
 ## References
 http://www.hackathon.io/smart-inspector
+
+## Licence
+Icon: https://www.shareicon.net/license/flaticon-basic-license
