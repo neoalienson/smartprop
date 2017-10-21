@@ -62,13 +62,11 @@
             tools:layout_editor_absoluteY="0dp"
             tools:layout_editor_absoluteX="8dp" />
 
-        <EditText
-            android:id="@+id/output_text"
+        <TextView
+            android:id="@+id/status_text"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical"
-            android:text="output"
-            android:clickable="false"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
             />
 
     </LinearLayout>

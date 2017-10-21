@@ -15,8 +15,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.microsoft.projectoxford.emotion.EmotionServiceClient;
@@ -27,19 +27,30 @@ import com.microsoft.projectoxford.emotion.rest.EmotionServiceException;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.microsoft.projectoxford.face.contract.Face;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.URL;
 import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class TakeAPhotoActivity extends AppCompatActivity {
 
     private static final int REQUEST_TAKE_PHOTO = 0;
+    public static final String TAG = "machine learning";
     Uri mUriPhotoTaken;
     Button mTakeAPhotoButton;
     Button mSubmitButton;
     ImageView mMainImage;
-    private EditText mEditText;
+    private TextView mStatusText;
     private Bitmap mBitmap;
     private EmotionServiceClient mClient;
 
@@ -67,7 +78,7 @@ public class TakeAPhotoActivity extends AppCompatActivity {
             }
         });
 
-        mEditText = (EditText) findViewById(R.id.output_text);
+        mStatusText = (TextView) findViewById(R.id.status_text);
 
         if (mClient == null) {
             mClient = new EmotionServiceRestClient(getString(R.string.subscription_key));
@@ -75,22 +86,15 @@ public class TakeAPhotoActivity extends AppCompatActivity {
     }
 
     private void submit() {
-        mEditText.setText("");
+        uiActive(false);
+        mStatusText.setText("Analysing");
         // Do emotion detection using auto-detected faces.
         try {
             new doRequest(false).execute();
         } catch (Exception e) {
-            mEditText.append("Error encountered. Exception is: " + e.toString());
+            Log.d(TAG, "Error encountered. Exception is: " + e.toString());
+            uiActive(true);
         }
-
-        String faceSubscriptionKey = getString(R.string.faceSubscription_key);
-
-        try {
-            new doRequest(true).execute();
-        } catch (Exception e) {
-            mEditText.append("Error encountered. Exception is: " + e.toString());
-        }
-
     }
 
     private List<RecognizeResult> processWithAutoFaceDetection() throws EmotionServiceException, IOException {
@@ -172,6 +176,66 @@ public class TakeAPhotoActivity extends AppCompatActivity {
         return result;
     }
 
+    private class postResults extends AsyncTask<String, String, Boolean> {
+        private void complete(final String message) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateStatus(message);
+                    uiActive(true);
+                }
+            });
+        }
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+            updateStatus("Upading result to machine learning");
+
+            try {
+                URL url = new URL(getString(R.string.machine_learning_host));
+                HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setConnectTimeout(2000);
+                conn.setRequestProperty("Authorization", "Bearer "
+                        + getString(R.string.machine_learning_key));
+                conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+                conn.setUseCaches(false);
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                writer.write(strings[0]);
+                writer.flush();
+                writer.close();
+                os.close();
+                Log.d(TAG, "response code: " + conn.getResponseCode()
+                    + " " + conn.getResponseMessage());
+                InputStream is = new BufferedInputStream(conn.getInputStream());
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                String inputLine = "";
+                StringBuffer sb = new StringBuffer();
+                while ((inputLine = br.readLine()) != null) {
+                    sb.append(inputLine);
+                }
+                Log.d(TAG, sb.toString());
+            } catch (Exception ex) {
+                complete("Failed: " + ex.toString());
+                Log.wtf(TAG, ex.toString());
+                return false;
+            }
+            complete("Done");
+            return true;
+        }
+    }
+
+    private void uiActive(boolean active) {
+        mSubmitButton.setEnabled(active);
+        mTakeAPhotoButton.setEnabled(active);
+    }
+    private void updateStatus(String status) {
+        mStatusText.setText(status);
+    }
+
     private class doRequest extends AsyncTask<String, String, List<RecognizeResult>> {
         // Store error message
         private Exception e = null;
@@ -205,16 +269,31 @@ public class TakeAPhotoActivity extends AppCompatActivity {
             // Display based on error existence
 
             if (this.useFaceRectangles == false) {
-                mEditText.append("\n\nRecognizing emotions with auto-detected face rectangles...\n");
+                updateStatus("Recognizing emotions with auto-detected face");
+                Log.d(TAG, "\n\nRecognizing emotions with auto-detected face rectangles...\n");
             } else {
-                mEditText.append("\n\nRecognizing emotions with existing face rectangles from Face API...\n");
+                updateStatus("Recognizing emotions with Face API");
+                Log.d(TAG, "\n\nRecognizing emotions with existing face rectangles from Face API...\n");
             }
             if (e != null) {
-                mEditText.setText("Error: " + e.getMessage());
+                updateStatus("Error: " + e.getMessage());
                 this.e = null;
             } else {
                 if (result.size() == 0) {
-                    mEditText.append("No emotion detected :(");
+                    Log.d(TAG, "No emotion detected :(");
+                    if (this.useFaceRectangles == false) {
+                        String faceSubscriptionKey = getString(R.string.faceSubscription_key);
+
+                        try {
+                            new doRequest(true).execute();
+                        } catch (Exception e) {
+                            Log.d(TAG, "Error encountered. Exception is: " + e.toString());
+                            uiActive(true);
+                        }
+                    } else {
+                        updateStatus("No emotion detected");
+                        uiActive(true);
+                    }
                 } else {
                     Integer count = 0;
                     // Covert bitmap to a mutable bitmap by copying it
@@ -227,27 +306,55 @@ public class TakeAPhotoActivity extends AppCompatActivity {
                     paint.setColor(Color.RED);
 
                     for (RecognizeResult r : result) {
-                        mEditText.append(String.format("\nFace #%1$d \n", count));
-                        mEditText.append(String.format("\t anger: %1$.5f\n", r.scores.anger));
-                        mEditText.append(String.format("\t contempt: %1$.5f\n", r.scores.contempt));
-                        mEditText.append(String.format("\t disgust: %1$.5f\n", r.scores.disgust));
-                        mEditText.append(String.format("\t fear: %1$.5f\n", r.scores.fear));
-                        mEditText.append(String.format("\t happiness: %1$.5f\n", r.scores.happiness));
-                        mEditText.append(String.format("\t neutral: %1$.5f\n", r.scores.neutral));
-                        mEditText.append(String.format("\t sadness: %1$.5f\n", r.scores.sadness));
-                        mEditText.append(String.format("\t surprise: %1$.5f\n", r.scores.surprise));
-                        mEditText.append(String.format("\t face rectangle: %d, %d, %d, %d", r.faceRectangle.left, r.faceRectangle.top, r.faceRectangle.width, r.faceRectangle.height));
+                        Log.d(TAG, String.format("\nFace #%1$d \n", count));
+                        Log.d(TAG, String.format("\t anger: %1$.5f\n", r.scores.anger));
+                        Log.d(TAG, String.format("\t contempt: %1$.5f\n", r.scores.contempt));
+                        Log.d(TAG, String.format("\t disgust: %1$.5f\n", r.scores.disgust));
+                        Log.d(TAG, String.format("\t fear: %1$.5f\n", r.scores.fear));
+                        Log.d(TAG, String.format("\t happiness: %1$.5f\n", r.scores.happiness));
+                        Log.d(TAG, String.format("\t neutral: %1$.5f\n", r.scores.neutral));
+                        Log.d(TAG, String.format("\t sadness: %1$.5f\n", r.scores.sadness));
+                        Log.d(TAG, String.format("\t surprise: %1$.5f\n", r.scores.surprise));
+                        Log.d(TAG, String.format("\t face rectangle: %d, %d, %d, %d", r.faceRectangle.left, r.faceRectangle.top, r.faceRectangle.width, r.faceRectangle.height));
                         faceCanvas.drawRect(r.faceRectangle.left,
                                 r.faceRectangle.top,
                                 r.faceRectangle.left + r.faceRectangle.width,
                                 r.faceRectangle.top + r.faceRectangle.height,
                                 paint);
                         count++;
+                        new postResults().execute(
+                                String.format(
+                                "{\n" +
+                                        "  \"Inputs\": {\n" +
+                                        "    \"input1\": [\n" +
+                                        "      {\n" +
+                                        "        \"anger\": %1$.5f,\n" +
+                                        "        \"contempt\": %1$.5f,\n" +
+                                        "        \"disgust\": %1$.5f,\n" +
+                                        "        \"fear\": %1$.5f,\n" +
+                                        "        \"happiness\": %1$.5f,\n" +
+                                        "        \"neutral\": %1$.5f,\n" +
+                                        "        \"sadness\": %1$.5f,\n" +
+                                        "        \"surprise\": %1$.5f\n" +
+                                        "      }\n" +
+                                        "    ]\n" +
+                                        "  },\n" +
+                                        "  \"GlobalParameters\": {}\n" +
+                                        "}",
+                                        r.scores.anger,
+                                        r.scores.contempt,
+                                        r.scores.disgust,
+                                        r.scores.fear,
+                                        r.scores.happiness,
+                                        r.scores.neutral,
+                                        r.scores.sadness,
+                                        r.scores.surprise
+                                )
+                        );
                     }
                     ImageView imageView = (ImageView) findViewById(R.id.main_image);
                     imageView.setImageDrawable(new BitmapDrawable(getResources(), mBitmap));
                 }
-                mEditText.setSelection(0);
             }
         }
     }
@@ -275,7 +382,7 @@ public class TakeAPhotoActivity extends AppCompatActivity {
         mMainImage.setImageURI(imageUri);
         mBitmap = ImageHelper.loadSizeLimitedBitmapFromUri(
                 imageUri, getContentResolver());
-        mSubmitButton.setEnabled(true);
+        uiActive(true);
     }
 
 
