@@ -11,4 +11,6 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="title_activity_recognize">RecognizeActivity</string>
+    <string name="faceSubscription_key">dfcb5c9359be45fab3f65925dd878ee0</string>
+    <string name="subscription_key">ed93cc69532c4c8097c7b4f47f4708ee</string>
 </resources>

@@ -54,5 +54,14 @@
             tools:layout_editor_absoluteY="0dp"
             tools:layout_editor_absoluteX="8dp" />
 
+        <EditText
+            android:id="@+id/output_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            android:text="output"
+            android:clickable="false"
+            />
+
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
