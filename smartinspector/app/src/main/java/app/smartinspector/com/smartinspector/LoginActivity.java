@@ -3,6 +3,7 @@ package app.smartinspector.com.smartinspector;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -189,6 +190,11 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    public void activityTakeAPhoto() {
+        Intent intent = new Intent(this, TakeAPhotoActivity.class);
+        startActivity(intent);
+    }
+
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
@@ -209,7 +215,7 @@ public class LoginActivity extends AppCompatActivity {
 
             try {
                 // Simulate network access.error_invalid
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 return false;
             }
@@ -232,7 +238,7 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(false);
 
             if (success) {
-                finish();
+                activityTakeAPhoto();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
