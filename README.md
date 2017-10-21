@@ -12,7 +12,7 @@ example:
 
     <?xml version="1.0" encoding="utf-8"?>
     <resources>
-	<string name="machine_learning_host"><!-- put the url of your machine learning web service here, e.g., https://ussouthcentral.services.azureml.net/workspaces/9dae8315bc4d4a3a9e92f498df9af737/services/8d6447734fdb4dbfa89b966120597cca/execute?api-version=2.0&format=swagger --></string>
+	<string name="machine_learning_host"><!-- put the url of your machine learning web service here, e.g., https://ussouthcentral.services.azureml.net/workspaces/9dae8315bc4d4a3a9e92f498df9af737/services/8d6447734fdb4dbfa89b966120597cca/execute?api-version=2.0&amp;format=swagger --></string>
         <string name="machine_learning_key"><!-- put your machine learning key here --></string>
         <string name="faceSubscription_key"><!-- put your face detection subscription key here --></string>
         <string name="subscription_key"><!-- put your emotion detection subscription key here --></string>
