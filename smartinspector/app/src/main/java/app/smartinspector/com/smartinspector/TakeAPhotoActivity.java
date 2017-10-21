@@ -2,19 +2,14 @@ package app.smartinspector.com.smartinspector;
 
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +20,7 @@ import android.widget.ImageView;
 
 import com.google.gson.Gson;
 import com.microsoft.projectoxford.emotion.EmotionServiceClient;
+import com.microsoft.projectoxford.emotion.EmotionServiceRestClient;
 import com.microsoft.projectoxford.emotion.contract.FaceRectangle;
 import com.microsoft.projectoxford.emotion.contract.RecognizeResult;
 import com.microsoft.projectoxford.emotion.rest.EmotionServiceException;
@@ -33,7 +29,6 @@ import com.microsoft.projectoxford.face.contract.Face;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -46,7 +41,7 @@ public class TakeAPhotoActivity extends AppCompatActivity {
     ImageView mMainImage;
     private EditText mEditText;
     private Bitmap mBitmap;
-    private EmotionServiceClient client;
+    private EmotionServiceClient mClient;
 
 
     @Override
@@ -74,11 +69,13 @@ public class TakeAPhotoActivity extends AppCompatActivity {
 
         mEditText = (EditText) findViewById(R.id.output_text);
 
-        assignImage(Uri.parse("android.resource://app.smartinspector.com.smartinspector/"
-                + R.drawable.stevejobs));
+        if (mClient == null) {
+            mClient = new EmotionServiceRestClient(getString(R.string.subscription_key));
+        }
     }
 
     private void submit() {
+        mEditText.setText("");
         // Do emotion detection using auto-detected faces.
         try {
             new doRequest(false).execute();
@@ -115,7 +112,7 @@ public class TakeAPhotoActivity extends AppCompatActivity {
         //
         // Detect emotion by auto-detecting faces in the image.
         //
-        result = this.client.recognizeImage(inputStream);
+        result = this.mClient.recognizeImage(inputStream);
 
         String json = gson.toJson(result);
         Log.d("result", json);
@@ -163,7 +160,7 @@ public class TakeAPhotoActivity extends AppCompatActivity {
             // -----------------------------------------------------------------------
             // KEY SAMPLE CODE STARTS HERE
             // -----------------------------------------------------------------------
-            result = this.client.recognizeImage(inputStream, faceRectangles);
+            result = this.mClient.recognizeImage(inputStream, faceRectangles);
 
             String json = gson.toJson(result);
             Log.d("result", json);
