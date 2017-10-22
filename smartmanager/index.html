@@ -22,8 +22,14 @@
   var resultsRef = firebase.database().ref('/');
   var content = document.getElementById('content');
   resultsRef.on('value', function(snapshot) {
-    content = document.getElementById('content');
-    console.log(snapshot);
+    var content = document.getElementById('content');
+    var result = JSON.parse(snapshot.val().result);
+    console.log(result);
+    if (result.Results.output1[0]["Scored Probabilities"] > 0.5) {
+      content.innerText = "A job is well done";    
+    } else {
+      content.innerText = "Worrisome";
+    } 
   }
   );
 </script>
