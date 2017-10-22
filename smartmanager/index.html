@@ -1,0 +1,30 @@
+<html>
+
+<script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/4.5.0/firebase-database.js"></script>
+<body>
+<div id='Title'>Smart Management</div>
+<div id='content'>
+</div>
+</body>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyA9E6KrgDcLyTBoLVnkARGWuUIPRcw_QAo",
+    authDomain: "smartprop-dd6b0.firebaseapp.com",
+    databaseURL: "https://smartprop-dd6b0.firebaseio.com",
+    projectId: "smartprop-dd6b0",
+    storageBucket: "smartprop-dd6b0.appspot.com",
+    messagingSenderId: "408571767990"
+  };
+  firebase.initializeApp(config);
+  var database = firebase.database();
+  var resultsRef = firebase.database().ref('/');
+  var content = document.getElementById('content');
+  resultsRef.on('value', function(snapshot) {
+    content = document.getElementById('content');
+    console.log(snapshot);
+  }
+  );
+</script>
+</html>
