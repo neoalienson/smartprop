@@ -20,6 +20,7 @@ example:
 
 ## Web App
 Start a python local webserver or host it to somewhere
+
     cd smartmanager
     python -m SimpleHttpServer
 
