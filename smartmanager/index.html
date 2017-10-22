@@ -1,9 +1,27 @@
 <html>
-
+<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,400italic,500,500italic,700|Roboto+Mono:400,500,700|Google+Sans:400,500"><link rel="stylesheet" type="text/css" href="https://www.gstatic.com/_/fireconsole/_/ss/k=fireconsole.fb.vr5xucpibpr.L.W.O/m=console_main/am=EMCAASkAYgGWgU7gAQ/d=1/rs=AON9PulRRbGTfm_lppcPaE2ojKHHYJvBmA">
 <script src="https://www.gstatic.com/firebasejs/4.6.0/firebase.js"></script>
 <script src="https://www.gstatic.com/firebasejs/4.5.0/firebase-database.js"></script>
+<style type="text/css">
+  div#title {
+    height: 100px;
+    background-color: #9999FF;
+    text-align: center;
+    line-height: 100px;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 50px;
+  }
+  div#content {
+    height: 100px;
+    text-align: center;
+    line-height: 100px;
+    font-size: 32px;
+  }
+</style>
 <body>
-<div id='Title'>Smart Management</div>
+<div id='title'>Smart Management</div>
+<center><img id='logo' src=logo.png></center>
 <div id='content'>
 </div>
 </body>
@@ -21,12 +39,14 @@
   var database = firebase.database();
   var resultsRef = firebase.database().ref('/');
   var content = document.getElementById('content');
+  var logo = document.getElementById('logo');
   resultsRef.on('value', function(snapshot) {
     var content = document.getElementById('content');
     var result = JSON.parse(snapshot.val().result);
     console.log(result);
     if (result.Results.output1[0]["Scored Probabilities"] > 0.5) {
       content.innerText = "A job is well done";    
+      logo.src="success.png"
     } else {
       content.innerText = "Worrisome";
     } 
