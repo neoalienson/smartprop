@@ -18,6 +18,10 @@ example:
         <string name="subscription_key"><!-- put your emotion detection subscription key here --></string>
     </resources>
 
+## Web App
+Start a python local webserver or host it to somewhere
+    cd smartmanager
+    python -m SimpleHttpServer
 
 ## Resources
 https://drive.google.com/drive/folders/0B2chQRrROUgKNDA1MUV0X1ZoLUE
