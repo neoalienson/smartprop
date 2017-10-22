@@ -185,6 +185,14 @@ public class TakeAPhotoActivity extends AppCompatActivity {
                 public void run() {
                     updateStatus(message);
                     uiActive(true);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(TakeAPhotoActivity.this);
+                    builder.setMessage("Thank you")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // The 'which' argument contains the index position
+                                    // of the selected item
+                                }});
+                    AlertDialog dialog = builder.create();
                 }
             });
         }
