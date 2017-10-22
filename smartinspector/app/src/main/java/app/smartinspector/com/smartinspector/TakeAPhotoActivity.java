@@ -204,7 +204,7 @@ public class TakeAPhotoActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(String... strings) {
-            updateStatus("Upading result to machine learning");
+            updateStatus("Updating result to machine learning");
 
             try {
                 URL url = new URL(getString(R.string.machine_learning_host));
