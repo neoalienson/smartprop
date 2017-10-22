@@ -28,6 +28,9 @@ Start a python local webserver or host it to somewhere
 https://drive.google.com/drive/folders/0B2chQRrROUgKNDA1MUV0X1ZoLUE
 
 ## Project Page
+http://www.hackathon.io/projects/17448
+
+## Hackaton Page
 http://www.hackathon.io/smartone-hackathon-smart-properties
 
 ## References
