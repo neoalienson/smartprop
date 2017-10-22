@@ -197,6 +197,7 @@ public class TakeAPhotoActivity extends AppCompatActivity {
                                     // of the selected item
                                 }});
                     AlertDialog dialog = builder.create();
+                    dialog.show();
                 }
             });
         }
