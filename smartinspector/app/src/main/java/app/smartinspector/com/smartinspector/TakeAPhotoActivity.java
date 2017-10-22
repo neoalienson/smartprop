@@ -290,21 +290,10 @@ public class TakeAPhotoActivity extends AppCompatActivity {
                             new doRequest(true).execute();
                         } catch (Exception e) {
                             Log.d(TAG, "Error encountered. Exception is: " + e.toString());
-                            uiActive(true);
+                            failed();
                         }
                     } else {
-                        updateStatus("No emotion detected");
-                        AlertDialog.Builder builder = new AlertDialog.Builder(TakeAPhotoActivity.this);
-                        builder.setMessage("Please take the photo again.")
-                                .setTitle("Failed to detect your emotion")
-                                .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // The 'which' argument contains the index position
-                                // of the selected item
-                            }});
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
-                        uiActive(true);
+                        failed();
                     }
                 } else {
                     Integer count = 0;
@@ -368,6 +357,21 @@ public class TakeAPhotoActivity extends AppCompatActivity {
                     imageView.setImageDrawable(new BitmapDrawable(getResources(), mBitmap));
                 }
             }
+        }
+
+        private void failed() {
+            updateStatus("No emotion detected");
+            AlertDialog.Builder builder = new AlertDialog.Builder(TakeAPhotoActivity.this);
+            builder.setMessage("Please take the photo again.")
+                    .setTitle("Failed to detect your emotion")
+                    .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    // The 'which' argument contains the index position
+                    // of the selected item
+                }});
+            AlertDialog dialog = builder.create();
+            dialog.show();
+            uiActive(true);
         }
     }
 
