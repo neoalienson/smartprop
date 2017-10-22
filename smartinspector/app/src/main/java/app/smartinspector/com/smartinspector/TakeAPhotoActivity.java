@@ -202,6 +202,27 @@ public class TakeAPhotoActivity extends AppCompatActivity {
             });
         }
 
+        private void failed(final String message) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateStatus(message);
+                    uiActive(true);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(TakeAPhotoActivity.this);
+                    builder.setMessage(message)
+                            .setTitle("Failed")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // The 'which' argument contains the index position
+                                    // of the selected item
+                                }});
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+            });
+
+        }
+
         @Override
         protected Boolean doInBackground(String... strings) {
             updateStatus("Updating result to machine learning");
@@ -238,7 +259,7 @@ public class TakeAPhotoActivity extends AppCompatActivity {
                 DatabaseReference myRef = database.getReference("result");
                 myRef.setValue(sb.toString());
             } catch (Exception ex) {
-                complete("Failed: " + ex.toString());
+                failed(ex.toString());
                 Log.wtf(TAG, ex.toString());
                 return false;
             }
