@@ -30,6 +30,7 @@ dependencies {
     compile 'com.microsoft.projectoxford:emotion:1.0.355'
     compile 'com.microsoft.projectoxford:face:1.0.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.google.firebase:firebase-database:11.+'
 
     testCompile 'junit:junit:4.12'
 }
